@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String     @unique
+  password  String
+  portfolio Portfolio?
+  chats     Chat[]
+  createdAt DateTime   @default(now())
+}
+
+model Portfolio {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  user           User     @relation(fields: [userId], references: [id])
+  monthlyIncome  Float
+  monthlySavings Float
+  riskLevel      String
+  goal           String
+  targetAmount   Float
+  targetDate     DateTime
+  assets         Asset[]
+  createdAt      DateTime @default(now())
+}
+
+model Asset {
+  id          Int       @id @default(autoincrement())
+  portfolioId Int
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
+  type        String
+  name        String
+  amount      Float
+  createdAt   DateTime  @default(now())
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  messages  Json
+  createdAt DateTime @default(now())
+}

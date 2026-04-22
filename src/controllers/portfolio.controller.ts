@@ -1,9 +1,9 @@
-import { Request, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 import { AddAssetBody, ApiResponse, CreatePortfolioBody } from "../types"
 import prisma from "../config/prisma"
 import logger from "../config/logger"
 
-export const createPortfolio = async (req: Request<{}, {}, CreatePortfolioBody>, res: Response) => {
+export const createPortfolio = async (req: Request<{}, {}, CreatePortfolioBody>, res: Response, next: NextFunction) => {
   try {
     const userId = (req as any).user.userId
     const {
@@ -54,15 +54,11 @@ export const createPortfolio = async (req: Request<{}, {}, CreatePortfolioBody>,
     } as ApiResponse<typeof portfolio>)
   } catch (err) {
     logger.error('[Portfolio] Create error:', err)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      data: null
-    } as ApiResponse<null>)
+    next(err)
   }
 }
 
-export const getPortfolio = async (req: Request, res: Response) => {
+export const getPortfolio = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = ((req as any).user).userId
     const portfolio = await prisma.portfolio.findUnique({ where: { userId }})
@@ -83,15 +79,11 @@ export const getPortfolio = async (req: Request, res: Response) => {
     return
   } catch(err) {
     logger.error('[Portfolio] Get error:', err)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      data: null
-    } as ApiResponse<null>)
+    next(err)
   }
 }
 
-export const addAsset = async (req: Request<{}, {}, AddAssetBody>, res: Response) => {
+export const addAsset = async (req: Request<{}, {}, AddAssetBody>, res: Response, next: NextFunction) => {
   try {
     const { type, name, amount } = req.body
 
@@ -128,15 +120,11 @@ export const addAsset = async (req: Request<{}, {}, AddAssetBody>, res: Response
 
   } catch(err) {
     logger.error('[Asset] Create error:', err)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      data: null
-    } as ApiResponse<null>)
+    next(err)
   }
 }
 
-export const deleteAsset = async (req: Request<{ id: string }>, res: Response) => {
+export const deleteAsset = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id: assetId } = req.params
 
@@ -170,11 +158,7 @@ export const deleteAsset = async (req: Request<{ id: string }>, res: Response) =
 
   } catch(err) {
     logger.error('[Asset] Delete error:', err)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      data: null
-    } as ApiResponse<null>)
+    next(err)
   }
 }
 

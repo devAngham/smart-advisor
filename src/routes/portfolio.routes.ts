@@ -1,10 +1,12 @@
 import { Router } from "express";
 import { verifyToken } from "../middleware/auth.middleware";
-import { createPortfolio, getPortfolio } from "../controllers/portfolio.controller";
+import { addAsset, createPortfolio, deleteAsset, getPortfolio } from "../controllers/portfolio.controller";
 
-const app = Router()
+const router = Router()
 
-app.post('/', verifyToken, createPortfolio)
-app.get('/', verifyToken, getPortfolio)
+router.post('/', verifyToken, createPortfolio)
+router.get('/', verifyToken, getPortfolio)
+router.post('/assets', verifyToken, addAsset)
+router.delete('/assets/:id', verifyToken, deleteAsset)
 
-export default app
+export default router

@@ -3,7 +3,6 @@ import { ApiResponse, CreatePortfolioBody } from "../types"
 import prisma from "../config/prisma"
 
 export const createPortfolio = async (req: Request<{}, {}, CreatePortfolioBody>, res: Response) => {
-  console.log(9999999)
   try {
     const userId = (req as any).user.userId
     const {
@@ -61,3 +60,33 @@ export const createPortfolio = async (req: Request<{}, {}, CreatePortfolioBody>,
     } as ApiResponse<null>)
   }
 }
+
+export const getPortfolio = async (req: Request, res: Response) => {
+  try {
+    const userId = ((req as any).user).userId
+    const portfolio = await prisma.portfolio.findUnique({ where: { userId }})
+
+    if (!portfolio) {
+      res.status(404).json({
+      success: true,
+      message: 'Portfolio not found',
+      data: null
+    } as ApiResponse<null>)
+    return
+    }
+    res.status(200).json({
+      success: true,
+      message: 'Portfolio retrieved successfully',
+      data: portfolio
+    } as ApiResponse<typeof portfolio>)
+    return
+  } catch(err) {
+    console.error('[Portfolio] Get error:', err)
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      data: null
+    } as ApiResponse<null>)
+  }
+}
+

@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { ApiResponse, ChatBody } from "../types"
 import prisma from "../config/prisma"
 import { getAIResponse } from "../services/ai.service"
+import logger from "../config/logger"
 
 const chatCache = new Map<number, any[]>()
 
@@ -51,7 +52,7 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response) =
       data: aiResponse
     } as ApiResponse<string>)
   } catch(err) {
-      console.log('[AI Advisor] error:', err)
+      logger.error('[AI Advisor] error:', err)
       res.status(500).json({
         success: false,
         message: 'Internal server error',
@@ -83,7 +84,7 @@ export const getChatHistory = async (req: Request, res: Response) => {
       data: chatHistory
     } as ApiResponse<typeof chatHistory>)
   } catch(err) {
-    console.log('[Chat History] error:', err)
+    logger.error('[Chat History] error:', err)
       res.status(500).json({
         success: false,
         message: 'Internal server error',

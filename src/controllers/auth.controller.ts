@@ -3,7 +3,9 @@ import bcrypt, { compare } from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import prisma from '../config/prisma'
 
+import { config } from '../config/env'
 import { ApiResponse, LoginBody, RegisterBody } from '../types'
+import logger from '../config/logger'
 
 
 export const login = async (req: Request<{}, {}, LoginBody>, res: Response) : Promise<void> => {
@@ -46,7 +48,7 @@ export const login = async (req: Request<{}, {}, LoginBody>, res: Response) : Pr
     // Generate JWT token
       const token = jwt.sign(
         { userId: user.id },
-        process.env.JWT_SECRET as string,
+        config.jwtSecret as string,
         { expiresIn: '7d' }
     )
 
@@ -64,8 +66,8 @@ export const login = async (req: Request<{}, {}, LoginBody>, res: Response) : Pr
         }
       } as ApiResponse<{ token: string; user: {id: number, name: string, email: string }}>)
       }
-    catch (err) {
-      console.error('[Auth] Login error:', err)
+    catch(err) {
+      logger.error('[Auth] Login error:', err)
       res.status(500).json({
         success: false,
         message: 'Internal Server Error',
@@ -105,7 +107,7 @@ export const register = async (req: Request<{}, {}, RegisterBody>, res: Response
     // Generate token
     const token = jwt.sign(
       {userId: user.id, },
-      process.env.JWT_SECRET as string,
+      config.jwtSecret as string,
       { expiresIn: '7d' }
     )
 
@@ -124,7 +126,7 @@ export const register = async (req: Request<{}, {}, RegisterBody>, res: Response
     } as ApiResponse<{ token: string; user: { id: number, email: string, name: string }}>)
 
   } catch(err) {
-    console.log('[Auth] Register error:', err)
+    logger.error('[Auth] Register error:', err)
     res.status(500).json({
       success: false,
       message: 'Internal server error',

@@ -1,7 +1,9 @@
 import Groq from "groq-sdk"
+import logger from "../config/logger"
+import { config } from "../config/env"
 
 const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY
+  apiKey: config.groqApiKey
 })
 
 export const getAIResponse = async (
@@ -49,7 +51,7 @@ export const getAIResponse = async (
     return aiResponse
 
   } catch(err) {
-      console.error('[AI] Service error:', err)
+      logger.error('[AI] Service error:', err)
       throw new Error('AI service failed')
   }
 }

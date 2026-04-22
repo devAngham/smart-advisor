@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { ApiResponse } from "../types";
 import jwt from "jsonwebtoken";
+import logger from "../config/logger";
+import { config } from "../config/env";
 
 export const verifyToken =  (req: Request, res: Response, next: NextFunction) : void => {
   
@@ -16,14 +18,14 @@ export const verifyToken =  (req: Request, res: Response, next: NextFunction) : 
       return
     }
     const token = authHeader?.split(' ')[1]
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: number }
+    const decoded = jwt.verify(token, config.jwtSecret as string) as { userId: number }
 
     // req.user = { userId: decoded.userId }
     (req as any).user = { userId: decoded.userId }
     next()
 
   } catch(err) {
-      console.error('[Auth] auth middleware error:', err)
+      logger.error('[Auth] auth middleware error:', err)
       res.status(500).json({
         success: false,
         message: 'Internal Server Error',

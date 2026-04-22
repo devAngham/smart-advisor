@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import bcrypt, { compare } from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import prisma from '../config/prisma'
@@ -8,7 +8,7 @@ import { ApiResponse, LoginBody, RegisterBody } from '../types'
 import logger from '../config/logger'
 
 
-export const login = async (req: Request<{}, {}, LoginBody>, res: Response) : Promise<void> => {
+export const login = async (req: Request<{}, {}, LoginBody>, res: Response, next: NextFunction) : Promise<void> => {
     try {
       const { email, password } = req.body
 
@@ -68,15 +68,11 @@ export const login = async (req: Request<{}, {}, LoginBody>, res: Response) : Pr
       }
     catch(err) {
       logger.error('[Auth] Login error:', err)
-      res.status(500).json({
-        success: false,
-        message: 'Internal Server Error',
-        data: null
-        } as ApiResponse<null>)
+      next(err)
     }
 }
 
-export const register = async (req: Request<{}, {}, RegisterBody>, res: Response) => {
+export const register = async (req: Request<{}, {}, RegisterBody>, res: Response, next: NextFunction) => {
   try {
 
     const { email, name, password } = req.body;
@@ -127,11 +123,7 @@ export const register = async (req: Request<{}, {}, RegisterBody>, res: Response
 
   } catch(err) {
     logger.error('[Auth] Register error:', err)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      data: null
-    } as ApiResponse<null>)
+    next(err)
   }
 }
 

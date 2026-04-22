@@ -1,4 +1,4 @@
-import { Request, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 import { ApiResponse, ChatBody } from "../types"
 import prisma from "../config/prisma"
 import { getAIResponse } from "../services/ai.service"
@@ -6,7 +6,7 @@ import logger from "../config/logger"
 
 const chatCache = new Map<number, any[]>()
 
-export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response) => {
+export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response, next: NextFunction) => {
   try {
     const userId = (req as any).user.userId
     const { message } = req.body
@@ -53,15 +53,11 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response) =
     } as ApiResponse<string>)
   } catch(err) {
       logger.error('[AI Advisor] error:', err)
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        data: null
-      } as ApiResponse<null>)
+      next(err)
   }
 }
 
-export const getChatHistory = async (req: Request, res: Response) => {
+export const getChatHistory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = (req as any).user.userId
 
@@ -85,10 +81,6 @@ export const getChatHistory = async (req: Request, res: Response) => {
     } as ApiResponse<typeof chatHistory>)
   } catch(err) {
     logger.error('[Chat History] error:', err)
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        data: null
-      } as ApiResponse<null>)
+    next(err)
   }
 }

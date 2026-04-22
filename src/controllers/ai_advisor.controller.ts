@@ -55,3 +55,26 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response) =
       } as ApiResponse<null>)
   }
 }
+
+export const getChatHistory = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId
+    const chatHistory = await prisma.chat.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' }
+    })
+    // console.log(55555, chatHistory)
+    res.status(200).json({
+      success: true,
+      message: 'Chat history retrieved successfully',
+      data: chatHistory
+    } as ApiResponse<typeof chatHistory>)
+  } catch(err) {
+    console.log('[Chat History] error:', err)
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        data: null
+      } as ApiResponse<null>)
+  }
+}

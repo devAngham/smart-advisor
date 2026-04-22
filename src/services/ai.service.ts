@@ -23,7 +23,7 @@ export const getAIResponse = async (
     - Target date: $${portfolio.targetDate}
 
     Current assets:
-    // ${portfolio.assets.map((a: any) => `- ${a.name} (${a.type}): $${a.amount}`).join('\n')}
+    ${portfolio.assets.map((a: any) => `- ${a.name} (${a.type}): $${a.amount}`).join('\n')}
 
     Give personalized advice based on this profile.
     Be concise and practical.
@@ -44,7 +44,6 @@ export const getAIResponse = async (
       ],
       max_tokens: 1000
     })
-    // console.log(111111111, response.choices)
     const aiResponse = response.choices[0].message.content || 'No Response'
 
     return aiResponse

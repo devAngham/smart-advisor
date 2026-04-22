@@ -9,7 +9,7 @@ export interface LoginBody {
   password: string
 }
 
-export interface CreateProtfolioBody {
+export interface CreatePortfolioBody {
   monthlyIncome: number
   monthlySavings: number
   riskLevel: 'low' | 'high' | 'medium'

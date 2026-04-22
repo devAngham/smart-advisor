@@ -4,8 +4,7 @@ import helmet from 'helmet'
 
 import authRoutes from './routes/auth.routes'
 import portfolioRoutes from './routes/portfolio.routes'
-import aiAdvisorRoutes from './routes/ai_advisor.routes'
-import chatRoutes from './routes/chat.routes'
+import aiAdvisorRoutes from './routes/advisor.routes'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -19,8 +18,7 @@ app.use(express.json())
 
 app.use('/auth', authRoutes)
 app.use('/portfolio', portfolioRoutes)
-app.use('/ai-advisor', aiAdvisorRoutes)
-app.use('/chat', chatRoutes)
+app.use('/advisor', aiAdvisorRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)

@@ -3,6 +3,8 @@ import { ApiResponse, ChatBody } from "../types"
 import prisma from "../config/prisma"
 import { getAIResponse } from "../services/ai.service"
 
+const chatCache = new Map<number, any[]>()
+
 export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response) => {
   try {
     const userId = (req as any).user.userId
@@ -22,12 +24,13 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response) =
       return
     }
 
-    const lastChat = await prisma.chat.findFirst({
-      where: { userId },
-      orderBy: { createdAt: 'desc' }
-    })
+    // const lastChat = await prisma.chat.findFirst({
+    //   where: { userId },
+    //   orderBy: { createdAt: 'desc' }
+    // })
 
-    const messages = lastChat ? lastChat.messages as any[] : []
+    // const messages = lastChat ? lastChat.messages as any[] : []
+    const messages = chatCache.get(userId) || []
 
     const aiResponse = await getAIResponse(portfolio, messages, message)
     const updatedMessages = [
@@ -35,6 +38,7 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response) =
       { role: 'user', content: message },
       { role: 'assistant', content: aiResponse }
     ]
+    chatCache.set(userId, updatedMessages)
     await prisma.chat.create({
       data: {
         userId,
@@ -59,11 +63,20 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response) =
 export const getChatHistory = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId
+
+    if(chatCache.has(userId)) {
+      res.status(200).json({
+      success: true,
+      message: 'Chat history retrieved successfully',
+      data: [{ messages: chatCache.get(userId) }]
+    } as ApiResponse<any>)
+    return
+    }
+
     const chatHistory = await prisma.chat.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' }
     })
-    // console.log(55555, chatHistory)
     res.status(200).json({
       success: true,
       message: 'Chat history retrieved successfully',

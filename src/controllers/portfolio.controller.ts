@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { AddAssetBody, ApiResponse, CreatePortfolioBody } from "../types"
 import prisma from "../config/prisma"
+import logger from "../config/logger"
 
 export const createPortfolio = async (req: Request<{}, {}, CreatePortfolioBody>, res: Response) => {
   try {
@@ -52,7 +53,7 @@ export const createPortfolio = async (req: Request<{}, {}, CreatePortfolioBody>,
       data: portfolio
     } as ApiResponse<typeof portfolio>)
   } catch (err) {
-    console.error('[Portfolio] Create error:', err)
+    logger.error('[Portfolio] Create error:', err)
     res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -81,7 +82,7 @@ export const getPortfolio = async (req: Request, res: Response) => {
     } as ApiResponse<typeof portfolio>)
     return
   } catch(err) {
-    console.error('[Portfolio] Get error:', err)
+    logger.error('[Portfolio] Get error:', err)
     res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -126,7 +127,7 @@ export const addAsset = async (req: Request<{}, {}, AddAssetBody>, res: Response
     } as ApiResponse<typeof asset>)
 
   } catch(err) {
-    console.error('[Asset] Create error:', err)
+    logger.error('[Asset] Create error:', err)
     res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -168,7 +169,7 @@ export const deleteAsset = async (req: Request<{ id: string }>, res: Response) =
     } as ApiResponse<null>)
 
   } catch(err) {
-    console.error('[Asset] Delete error:', err)
+    logger.error('[Asset] Delete error:', err)
     res.status(500).json({
       success: false,
       message: 'Internal server error',

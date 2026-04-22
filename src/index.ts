@@ -2,12 +2,13 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 
+import { config } from './config/env'
 import authRoutes from './routes/auth.routes'
 import portfolioRoutes from './routes/portfolio.routes'
 import aiAdvisorRoutes from './routes/advisor.routes'
 
 const app = express()
-const PORT = process.env.PORT || 3000
+const PORT = config.port || 3000
 
 // Security middlewares
 app.use(cors())

@@ -2,6 +2,8 @@ import Groq from "groq-sdk"
 import logger from "../config/logger"
 import { config } from "../config/env"
 
+import { tools } from "../config/tools.json"
+
 const groq = new Groq({
   apiKey: config.groqApiKey
 })
@@ -44,11 +46,30 @@ export const getAIResponse = async (
         { role: 'system', content: systemPrompt },
         ...allMessages
       ],
+      tools,
+      // 'auto' lets Groq decide: use a tool if the message requires an action,
+      // or respond with plain text if it's a general question
+      tool_choice: 'auto',
       max_tokens: 1000
     })
-    const aiResponse = response.choices[0].message.content || 'No Response'
+    const message = response.choices[0].message
 
-    return aiResponse
+    if (message.tool_calls) {
+      const toolCall = message.tool_calls[0]
+      const { name: toolName, arguments: args } = toolCall.function
+      const parsedArgs = JSON.parse(args)
+      return {
+        type: 'tool' as const, // === const typeOfTool = 'tool'; type = typeOfTool
+        content: { toolName, parsedArgs}
+      }
+    }
+
+    if (message.content) {
+      return {
+        type: 'text' as const,
+        content: message.content
+      }
+    }
 
   } catch(err) {
       logger.error('[AI] Service error:', err)

@@ -25,15 +25,66 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response, n
       return
     }
 
-    // const lastChat = await prisma.chat.findFirst({
-    //   where: { userId },
-    //   orderBy: { createdAt: 'desc' }
-    // })
-
-    // const messages = lastChat ? lastChat.messages as any[] : []
     const messages = chatCache.get(userId) || []
 
     const aiResponse = await getAIResponse(portfolio, messages, message)
+
+    if (aiResponse && aiResponse.type === 'tool') {
+      const { content } = aiResponse
+      if (content.toolName === 'add_asset') {
+        await prisma.asset.create({
+        data: {
+          portfolioId: portfolio.id,
+          ...content.parsedArgs
+        }
+      })
+      res.status(200).json({
+      success: true,
+      message: 'Asset created successfully',
+      data: null
+    } as ApiResponse<null>)
+      } else if (content.toolName === 'delete_asset') {
+          const deletedAsset = await prisma.asset.findUnique({
+            where: { id: content.parsedArgs.assetId }
+          })
+          if (!deletedAsset) {
+            res.status(404).json({
+            success: false,
+            message: 'Asset not found',
+            data: null
+          } as ApiResponse<null>)
+          return
+          }
+
+          await prisma.asset.delete({ where: { id: content.parsedArgs.assetId } })
+
+          res.status(200).json({
+            success: true,
+            message: 'Asset deleted successfully',
+            data: null
+          } as ApiResponse<null>)
+          return
+      } else if (content.toolName === 'get_portfolio') {
+        const portfolio = await prisma.portfolio.findUnique({
+          where: { userId }
+        })
+        if (!portfolio) {
+          res.status(404).json({
+          success: false,
+          message: 'Portfolio not found',
+          data: null
+        } as ApiResponse<null>)
+        return
+        }
+        res.status(200).json({
+          success: true,
+          message: 'Portfolio retrieved successfully',
+          data: portfolio
+        } as ApiResponse<typeof portfolio>)
+        return
+      }
+    }
+
     const updatedMessages = [
       ...messages,
       { role: 'user', content: message },
@@ -46,11 +97,12 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response, n
         messages: updatedMessages
       }
     })
+
     res.status(200).json({
       success: true,
-      message: 'AI response retrived',
+      message: 'AI response retrieved',
       data: aiResponse
-    } as ApiResponse<string>)
+    } as ApiResponse<any>)
   } catch(err) {
       logger.error('[AI Advisor] error:', err)
       next(err)

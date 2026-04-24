@@ -1,0 +1,57 @@
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "add_asset",
+        "description": "Add a new investment asset to the user portfolio. Use this when the user wants to buy, add, or invest in stocks, gold, ETF, crypto, or cash.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name" : {
+            "type": "string",
+            "description": "Investment asset, e.g: stocks, gold"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["stocks", "gold", "ETF", "crypto", "cash"]
+            },
+            "amount": {
+              "type": "number",
+              "description": "Investment amount in USD, e.g: 500"
+            }
+          },
+          "required": ["name", "type", "amount"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "delete_asset",
+        "description": "Remove or delete an existing investment asset from the user portfolio. Use this when the user wants to sell, remove, delete, or get rid of a specific asset from their portfolio.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "assetId": {
+              "type": "number",
+              "description": "The unique ID of the asset to delete. If the user doesn't know the ID, use get_portfolio first to retrieve all assets with their IDs."
+            }
+          },
+          "required": ["assetId"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "get_portfolio",
+        "description": "Retrieve the user's current portfolio with all assets and financial details. Use this when the user wants to see, check, view, or analyze their portfolio, or when you need asset IDs before performing delete operations.",
+        "parameters": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    }
+  ]
+}

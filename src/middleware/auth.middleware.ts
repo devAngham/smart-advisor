@@ -26,11 +26,7 @@ export const verifyToken =  (req: Request, res: Response, next: NextFunction) : 
 
   } catch(err) {
       logger.error('[Auth] auth middleware error:', err)
-      res.status(500).json({
-        success: false,
-        message: 'Internal Server Error',
-        data: null
-        } as ApiResponse<null>)
+      next(err)
     }
   
 }

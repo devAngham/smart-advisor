@@ -43,6 +43,7 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response, n
       message: 'Asset created successfully',
       data: null
     } as ApiResponse<null>)
+      return
       } else if (content.toolName === 'delete_asset') {
           const deletedAsset = await prisma.asset.findUnique({
             where: { id: content.parsedArgs.assetId }
@@ -84,7 +85,7 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response, n
         return
       }
     }
-
+    console.log(11111111, aiResponse)
     const updatedMessages = [
       ...messages,
       { role: 'user', content: message },

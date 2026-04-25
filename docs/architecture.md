@@ -115,7 +115,29 @@ src/
 ```
  
 ---
- 
+
+## 🤖 MCP Tool Use Architecture
+
+User Message
+
+↓
+
+Groq API + Tool Definitions
+
+↓
+
+Groq decides: Text or Tool?
+
+↓
+
+* Tool Selected → Execute in DB → Return Result
+
+* Text Response → Return directly to user
+
+### Tool Definitions
+Tool schemas are defined in `src/config/tools.json` and sent with every request to Groq.
+Each tool has a name, description, and parameters that guide the AI's decision.
+
 ## Design Decisions
  
 | Decision | Choice | Reason |

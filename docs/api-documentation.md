@@ -222,7 +222,7 @@ Login with existing credentials.
   "message": "Should I invest in crypto given my risk level?"
 }
 ```
- 
+
 **Response `200`:**
 ```json
 {
@@ -234,7 +234,28 @@ Login with existing credentials.
   }
 }
 ```
- 
+### 🤖 MCP Tool Use
+The AI advisor supports tool use via MCP (Model Context Protocol). 
+The AI automatically detects the user's intent and executes the appropriate action.
+
+**Available Tools:**
+
+| Tool | Trigger Example | Action |
+|------|----------------|--------|
+| `add_asset` | "Add Tesla stocks worth $2000" | Creates asset in DB |
+| `delete_asset` | "Delete asset with id 3" | Removes asset from DB |
+| `get_portfolio` | "Show my current portfolio" | Returns portfolio data |
+
+**Note:** No tool name is required in the request — the AI decides automatically.
+
+### 🌍 Multi-language Support
+The AI advisor automatically detects the language of the user's message and responds in the same language. No additional configuration is required.
+
+**Examples:**
+- Arabic: `"ما رأيك في محفظتي الحالية؟"`
+- French: `"Quel est le meilleur moment pour investir?"`
+- English: `"Should I invest more in stocks?"`
+
 ---
  
 ### GET `/advisor/chat/history`
@@ -257,7 +278,7 @@ Login with existing credentials.
   ]
 }
 ```
- 
+
 ---
  
 ## ❌ Error Responses

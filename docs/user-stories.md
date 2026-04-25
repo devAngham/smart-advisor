@@ -109,6 +109,49 @@ Smart Advisor serves three types of users based on their investment experience.
 - Each chat includes messages and timestamp
 - Sorted by most recent first
 ---
+
+## 🤖 MCP Tool Use
+
+### US-010 — Add Asset via Chat
+> As a **user**, I want to add an investment asset by simply typing a message so that I don't need to use a separate endpoint.
+
+**Acceptance Criteria:**
+- User sends a natural language message requesting to add an asset
+- AI automatically detects the intent and calls the add_asset tool
+- Asset is added to the portfolio in the database
+- User receives a confirmation response
+
+---
+
+### US-011 — Delete Asset via Chat
+> As a **user**, I want to delete an asset by simply typing a message so that I can manage my portfolio conversationally.
+
+**Acceptance Criteria:**
+- User sends a message requesting to delete an asset
+- AI calls the delete_asset tool with the correct asset ID
+- Asset is removed from the database
+- Returns 404 if asset not found
+
+---
+
+### US-012 — View Portfolio via Chat
+> As a **user**, I want to view my portfolio by simply asking the AI so that I get my data conversationally.
+
+**Acceptance Criteria:**
+- User sends a message requesting to view their portfolio
+- AI calls the get_portfolio tool automatically
+- Returns full portfolio data with assets
+
+## 🌍 Multi-language Support
+
+### US-013 — Multi-language Chat
+> As a **user**, I want to interact with the AI advisor in my preferred language so that I can get financial advice in a language I'm comfortable with.
+
+**Acceptance Criteria:**
+- AI detects the language of the user's message automatically
+- AI responds in the same language as the user's message
+- Supported languages include Arabic, English, French, and others
+- No configuration required from the user
  
 ## 🔒 Security Requirements
  

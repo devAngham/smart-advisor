@@ -31,6 +31,17 @@ export const getAIResponse = async (
 
     Give personalized advice based on this profile.
     Be concise and practical.
+
+    IMPORTANT: 
+    - Only use tools when the user explicitly asks to ADD, DELETE, or VIEW their portfolio assets.
+    - For general financial questions and advice, ALWAYS respond with text only — do NOT use any tools.
+    - Examples of general questions (respond with text): "what is the best time to invest?", "should I buy gold?", "what is an ETF?"
+    - Examples of tool use: "add gold to my portfolio", "show my assets", "delete asset 3"
+
+    Important: Always detect the language of the user's message and always send the respond in the same language
+    If the user writes in Arabic, respond in Arabic
+    If the user writes in French, respond in French. Never switch language
+
     `
 
     // build all chats

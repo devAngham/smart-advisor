@@ -3,6 +3,7 @@ import logger from "../config/logger"
 import { config } from "../config/env"
 
 import { tools } from "../config/tools.json"
+import { riskCalculator } from "../utils/riskCalculator"
 
 const groq = new Groq({
   apiKey: config.groqApiKey
@@ -14,6 +15,7 @@ export const getAIResponse = async (
   userMessage: string
 ) => {
   try {
+    const riskScore = await riskCalculator(portfolio.assets)
     // build the system prompt based on portfolio & assets
     const systemPrompt = `
     You are a professional financial advisor.
@@ -29,6 +31,7 @@ export const getAIResponse = async (
     Current assets:
     ${portfolio.assets.map((a: any) => `- ${a.name} (${a.type}): $${a.amount}`).join('\n')}
 
+    Portfolio Risk Score: ${riskScore.score} / 100 - ${riskScore.level}
     Give personalized advice based on this profile.
     Be concise and practical.
 

@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express"
 import { AddAssetBody, ApiResponse, CreatePortfolioBody } from "../types"
 import prisma from "../config/prisma"
 import logger from "../config/logger"
+import { riskCalculator } from "../utils/riskCalculator"
 
 export const createPortfolio = async (req: Request<{}, {}, CreatePortfolioBody>, res: Response, next: NextFunction) => {
   try {
@@ -159,6 +160,36 @@ export const deleteAsset = async (req: Request<{ id: string }>, res: Response, n
   } catch(err) {
     logger.error('[Asset] Delete error:', err)
     next(err)
+  }
+}
+
+export const getRiskScore = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+     const userId = (req as any).user.userId
+
+    const portfolio = await prisma.portfolio.findUnique({
+      where: { userId },
+      include: { assets: true }
+    })
+
+    if (!portfolio) {
+      res.status(404).json({
+        success: false,
+        message: 'Portfolio not found',
+        data: null
+      } as ApiResponse<null>)
+      return
+    }
+
+    const riskScore = riskCalculator(portfolio.assets)
+
+    res.status(200).json({
+      success: true,
+      message: 'Risk score calculated successfully',
+      data: riskScore
+    } as ApiResponse<typeof riskScore>)
+  } catch(err){
+      next(err)
   }
 }
 

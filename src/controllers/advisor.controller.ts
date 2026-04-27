@@ -3,13 +3,14 @@ import { ApiResponse, ChatBody } from "../types"
 import prisma from "../config/prisma"
 import { getAIResponse } from "../services/ai.service"
 import logger from "../config/logger"
+import { riskCalculator } from "../utils/riskCalculator"
 
 const chatCache = new Map<number, any[]>()
 
 export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response, next: NextFunction) => {
   try {
     const userId = (req as any).user.userId
-    const { message } = req.body
+    const { message } = req.body    
 
     const portfolio = await prisma.portfolio.findUnique({
       where: { userId },
@@ -28,6 +29,8 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response, n
     const messages = chatCache.get(userId) || []
 
     const aiResponse = await getAIResponse(portfolio, messages, message)
+
+    await riskCalculator(portfolio.assets)
 
     if (aiResponse && aiResponse.type === 'tool') {
       const { content } = aiResponse
@@ -85,11 +88,13 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response, n
         return
       }
     }
-    console.log(11111111, aiResponse)
     const updatedMessages = [
       ...messages,
       { role: 'user', content: message },
-      { role: 'assistant', content: aiResponse }
+      { role: 'assistant', content: aiResponse?.type === 'text' ? aiResponse.content
+        :
+        JSON.stringify(aiResponse?.content)
+       }
     ]
     chatCache.set(userId, updatedMessages)
     await prisma.chat.create({
@@ -104,6 +109,7 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response, n
       message: 'AI response retrieved',
       data: aiResponse
     } as ApiResponse<any>)
+    return
   } catch(err) {
       logger.error('[AI Advisor] error:', err)
       next(err)

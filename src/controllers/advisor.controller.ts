@@ -4,6 +4,7 @@ import prisma from "../config/prisma"
 import { getAIResponse } from "../services/ai.service"
 import logger from "../config/logger"
 import { riskCalculator } from "../utils/riskCalculator"
+import { chatSchema } from "../validators/chat.validator"
 
 const chatCache = new Map<number, any[]>()
 
@@ -11,6 +12,17 @@ export const aiAdvisor = async (req: Request<{}, {}, ChatBody>, res: Response, n
   try {
     const userId = (req as any).user.userId
     const { message } = req.body    
+
+    const result = chatSchema.safeParse({ message })
+
+    if (!result.success) {
+      res.status(400).json({
+        success: false,
+        message: result.error.issues[0]?.message || 'Validation failed',
+        data: null
+      } as ApiResponse<null>)
+      return
+    }
 
     const portfolio = await prisma.portfolio.findUnique({
       where: { userId },

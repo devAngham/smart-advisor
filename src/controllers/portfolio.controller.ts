@@ -3,6 +3,8 @@ import { AddAssetBody, ApiResponse, CreatePortfolioBody } from "../types"
 import prisma from "../config/prisma"
 import logger from "../config/logger"
 import { riskCalculator } from "../utils/riskCalculator"
+import { portfolioSchema } from "../validators/portfolio.validator"
+import { assetSchema } from "../validators/asset.validator"
 
 export const createPortfolio = async (req: Request<{}, {}, CreatePortfolioBody>, res: Response, next: NextFunction) => {
   try {
@@ -16,10 +18,11 @@ export const createPortfolio = async (req: Request<{}, {}, CreatePortfolioBody>,
       targetDate
     } = req.body
 
-    if(!monthlyIncome || !monthlySavings || !riskLevel || !goal || !targetAmount || !targetDate){
+    const result = portfolioSchema.safeParse({ monthlyIncome, monthlySavings, riskLevel, goal, targetAmount, targetDate })
+    if(!result.success){
       res.status(400).json({
         success: false,
-        message: 'All fields are required',
+        message: result.error.issues[0]?.message || 'Validation failed',
         data: null
       } as ApiResponse<null>)
       return
@@ -88,10 +91,13 @@ export const addAsset = async (req: Request<{}, {}, AddAssetBody>, res: Response
   try {
     const { type, name, amount } = req.body
 
-    if (!type || !name || !amount) {
+    const result = assetSchema.safeParse({ type, name, amount })
+
+    if (!result) {
       res.status(400).json({
       success: false,
-      message: 'All fields are required',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      message: (result as any).error.errors[0].message || 'Validation failed',
       data: null
     } as ApiResponse<null>)
     return

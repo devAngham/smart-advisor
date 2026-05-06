@@ -5,6 +5,7 @@ import prisma from '../config/prisma'
 
 import { config } from '../config/env'
 import { ApiResponse, LoginBody, RegisterBody } from '../types'
+import { loginSchema, registerSchema } from '../validators/auth.validator'
 import logger from '../config/logger'
 
 
@@ -12,11 +13,13 @@ export const login = async (req: Request<{}, {}, LoginBody>, res: Response, next
     try {
       const { email, password } = req.body
 
+      const result = loginSchema.safeParse({ email, password })
+
       // Validate required fields
-      if (!email || !password) {
+      if (!result.success) {
         res.status(400).json({
           success: false,
-          message: 'Email & password are required',
+          message: result.error.issues[0]?.message || 'Validation failed',
           data: null
         } as ApiResponse<null>)
       }
@@ -75,12 +78,13 @@ export const login = async (req: Request<{}, {}, LoginBody>, res: Response, next
 export const register = async (req: Request<{}, {}, RegisterBody>, res: Response, next: NextFunction) => {
   try {
 
-    const { email, name, password } = req.body;
-    // Validate required fields
-    if (!email || !name || !password) {
+    const { email, name, password } = req.body
+    const result = registerSchema.safeParse({ email, name, password })
+
+    if (!result.success) {
       res.status(400).json({
         success: false,
-        message: 'All fields are required',
+        message: result.error.issues[0]?.message || 'Validation failed',
         data: null
       } as ApiResponse<null>)
       return
